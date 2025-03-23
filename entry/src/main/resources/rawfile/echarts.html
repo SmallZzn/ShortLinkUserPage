@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+    <script src="./echarts.min.js"></script>
+    <style>
+        * {
+            padding: 0;
+            margin: 0
+        }
+
+        body,
+        html {
+            height: 100%;
+            width: 100%
+        }
+
+        #container {
+            height: 100%;
+            width: 100%
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container"></div>
+</body>
+<script>
+    const container = document.getElementById('container');
+    let myChart = echarts.init(container);
+    let isTooltipShowing = false;
+
+    function setOption(option) {
+        myChart?.clear();
+
+        // 移除旧的事件监听
+        myChart.off('click');
+
+        // 添加点击事件监听
+        myChart.on('click', function (params) {
+            if (params.componentType === 'series') {
+                // 点击数据点时显示tooltip
+                if (!isTooltipShowing) {
+                    myChart.dispatchAction({
+                        type: 'showTip',
+                        seriesIndex: params.seriesIndex,
+                        dataIndex: params.dataIndex
+                    });
+                    isTooltipShowing = true;
+                }
+            }
+        });
+
+        // 添加全局点击事件监听
+        document.addEventListener('click', function (event) {
+            // 获取点击的坐标
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+
+            // 获取折线图容器的位置和大小
+            const rect = container.getBoundingClientRect();
+
+            // 判断点击的区域是否在折线图内部
+            const isInsideChart =
+                mouseX >= rect.left &&
+                mouseX <= rect.right &&
+                mouseY >= rect.top &&
+                mouseY <= rect.bottom &&
+                myChart.containPixel('grid', [mouseX - rect.left, mouseY - rect.top]);
+
+            if (!isInsideChart && isTooltipShowing) {
+                // 点击其他区域时隐藏tooltip
+                myChart.dispatchAction({
+                    type: 'hideTip'
+                });
+                isTooltipShowing = false;
+            }
+        });
+
+        myChart?.setOption(option);
+    }
+</script>
+
+</html>

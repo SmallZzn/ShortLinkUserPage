@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #f8f8f8;
+    }
+
+    #container {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="container"></div>
+
+  <script src="./echarts.min.js"></script>
+  <script src="./china.js"></script>
+  <script>
+    // 全局变量
+    var chart = null;
+
+    // 全局更新地图数据函数
+    window.updateMapData = function (data) {
+      // 获取所有省份
+      var chinaMap = echarts.getMap('china');
+      var allProvinces = chinaMap.geoJSON.features.map(function (feature) {
+        return feature.properties.name;
+      });
+
+      // 处理名称匹配问题并确保所有省份都有数据
+      var normalizedData = data.map(function (item) {
+        // 去掉省和市后缀
+        var newName = item.name.replace(/省|市|自治区|特别行政区/g, "");
+        return {
+          name: newName,
+          value: item.value || 0 // 确保值不是undefined
+        };
+      });
+
+      // 创建完整的数据集，包含所有省份
+      var processedData = [];
+      allProvinces.forEach(function (province) {
+        // 省份名称标准化（去掉后缀）
+        var normalizedProvince = province.replace(/省|市|自治区|特别行政区/g, "");
+
+        // 查找是否有匹配的数据
+        var found = normalizedData.find(function (item) {
+          return item.name === normalizedProvince;
+        });
+
+        // 添加到处理后的数据，如果没有找到则设置为0
+        processedData.push({
+          name: normalizedProvince,
+          value: found ? found.value : 0
+        });
+      });
+
+      // 有数据的点
+      var validData = processedData.filter(function (item) {
+        return item.value > 0;
+      });
+
+      if (chart) {
+        try {
+          // 设置地图配置
+          chart.setOption({
+            title: {
+              left: 'center',
+              textStyle: {
+                fontSize: 16
+              }
+            },
+            tooltip: {
+              trigger: 'item',
+              formatter: '{b}: {c}'
+            },
+            visualMap: {
+              type: 'continuous', // 改回连续型
+              min: 0,
+              max: Math.max(1, Math.max.apply(null, validData.map(function (item) { return item.value; }))),
+              text: ['高', '低'],
+              realtime: false,
+              calculable: true,
+              inRange: {
+                color: ['#aae0fa', '#4080FF'] // 从浅蓝到深蓝的渐变
+              },
+              controller: {
+                inRange: {
+                  color: ['#aae0fa', '#4080FF']
+                }
+              },
+              show: true
+            },
+            series: [{
+              name: '访问量',
+              type: 'map',
+              map: 'china',
+              roam: true,
+              label: {
+                show: true,
+                color: '#000'
+              },
+              itemStyle: {
+                areaColor: '#eeeeee', // 设置默认颜色为浅灰色（0值区域）
+                borderColor: '#999999'
+              },
+              emphasis: {
+                label: {
+                  show: true
+                },
+                itemStyle: {
+                  areaColor: '#ccccff'
+                }
+              },
+              data: processedData.map(function (item) {
+                // 对值为0的区域不设置value，这样会使用默认颜色
+                if (item.value === 0) {
+                  return {
+                    name: item.name,
+                    itemStyle: {
+                      areaColor: '#eeeeee' // 浅灰色
+                    }
+                  };
+                }
+                return item;
+              })
+            }]
+          });
+        } catch (e) {
+          console.error("更新地图错误: " + e.message);
+        }
+      }
+    };
+
+    // 初始化
+    window.onload = function () {
+      try {
+        // 检查地图数据
+        var chinaMap = echarts.getMap('china');
+        if (!chinaMap) {
+          console.error("错误: 地图数据未加载");
+          return;
+        }
+
+        // 初始化图表
+        var container = document.getElementById('container');
+        chart = echarts.init(container);
+
+        // 设置初始地图
+        chart.setOption({
+          title: {
+            left: 'center'
+          },
+          visualMap: {
+            type: 'continuous',
+            min: 0,
+            max: 100,
+            inRange: {
+              color: ['#aae0fa', '#4080FF']
+            },
+            show: false
+          },
+          series: [{
+            type: 'map',
+            map: 'china',
+            roam: true,
+            label: {
+              show: true
+            },
+            itemStyle: {
+              areaColor: '#eeeeee', // 浅灰色作为默认颜色
+              borderColor: '#999999'
+            },
+            emphasis: {
+              itemStyle: {
+                areaColor: '#cce6ff'
+              }
+            },
+            data: []
+          }]
+        });
+
+        // 窗口大小变化时重新调整图表大小
+        window.addEventListener('resize', function () {
+          if (chart) {
+            chart.resize();
+          }
+        });
+      } catch (e) {
+        console.error("初始化错误: " + e.message);
+      }
+    };
+  </script>
+</body>
+
+</html>

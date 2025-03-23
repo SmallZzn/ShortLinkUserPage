@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="./echarts.min.js"></script>
+</head>
+<body>
+    <div id="chart" style="width:100%;height:100%;"></div>
+    <script>
+        const chart = echarts.init(document.getElementById('chart'));
+        
+        function setChartData(data) {
+            const option = {
+                xAxis: {
+                    type: 'category',
+                    data: data.xAxis
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    data: data.value,
+                    type: 'bar'
+                }]
+            };
+            chart.setOption(option);
+        }
+    </script>
+</body>
+</html> 

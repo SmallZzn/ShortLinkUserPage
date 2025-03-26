@@ -703,12 +703,6 @@ export struct ShortLinkStats {
                   }
                   .width('47%')
                   .margin({ left: 10 })
-                } else {
-                  // 非分组统计时，右侧空白占位
-                  Column() {
-                  }
-                  .width('47%')
-                  .margin({ left: 10 })
                 }
               }
               .width('100%')
@@ -758,10 +752,9 @@ export struct ShortLinkStats {
                   .width('100%')
                   .padding(16)
                   .backgroundColor(Color.White)
-                  .borderRadius({ topLeft: 8, topRight: 8 })
-                  .zIndex(2) // 确保表头在顶部且总是可见
+                  .zIndex(2)
 
-                  // 表格内容 - 使用Scroll使内容可滚动
+                  // 表格内容
                   Scroll() {
                     Column() {
                       List() {
@@ -792,9 +785,7 @@ export struct ShortLinkStats {
                                 .maxLines(1)
                                 .textAlign(TextAlign.Center)
 
-                              // 设备信息（图标）
                               Row({ space: 4 }) {
-                                // 操作系统图标
                                 if (item.os) {
                                   Column() {
                                     Image(IconMap.getOsIcon(item.os) || $r('app.media.windows'))
@@ -804,7 +795,6 @@ export struct ShortLinkStats {
                                   }
                                 }
 
-                                // 浏览器图标
                                 if (item.browser) {
                                   Column() {
                                     Image(IconMap.getBrowserIcon(item.browser) || $r('app.media.Chrome'))
@@ -814,7 +804,6 @@ export struct ShortLinkStats {
                                   }
                                 }
 
-                                // 网络类型图标
                                 if (item.network) {
                                   Column() {
                                     Image(IconMap.getNetworkIcon(item.network) || $r('app.media.WIFI'))
@@ -824,7 +813,6 @@ export struct ShortLinkStats {
                                   }
                                 }
 
-                                // 设备类型图标
                                 if (item.device) {
                                   Column() {
                                     Image(IconMap.getDeviceIcon(item.device) || $r('app.media.computer'))
@@ -836,12 +824,7 @@ export struct ShortLinkStats {
                               }
                               .width('18%')
                               .justifyContent(FlexAlign.Center)
-                              .borderRadius(4)
-                              .padding(4)
                               .onClick(() => {
-                                const deviceInfo = `${item.os || '-'} / ${item.browser || '-'} / ${item.network ||
-                                  '-'} / ${item.device || '-'}`;
-                                JhProgressHUD.showText(deviceInfo);
                               })
 
                               Text(item.user === 'newUser' ? '新访客' : '老访客')
@@ -854,19 +837,13 @@ export struct ShortLinkStats {
                             }
                             .width('100%')
                             .padding(16)
-                            .borderRadius(0)
+                            .backgroundColor(Color.White)
                           }
-                          .backgroundColor(Color.White)
-                          .border({
-                            width: { top: 1 },
-                            color: this.themeBorderColor,
-                            style: BorderStyle.Solid
-                          })
                         })
                       }
                       .width('100%')
+                      .layoutWeight(1)
 
-                      // 无数据提示
                       if (this.accessRecords.length === 0) {
                         Column() {
                           Text('暂无访问记录')
@@ -874,147 +851,139 @@ export struct ShortLinkStats {
                             .fontColor(this.textColorSecondary)
                         }
                         .width('100%')
-                        .height(100)
+                        .height(400)
                         .backgroundColor(Color.White)
                         .justifyContent(FlexAlign.Center)
-                        .border({
-                          width: { top: 1 },
-                          color: this.themeBorderColor,
-                          style: BorderStyle.Solid
-                        })
                       }
+
+                      // 分页控制
+                      Row() {
+                        // 所有分页元素放在同一个Row中
+                        Row({ space: 8 }) {
+                          // 上一页按钮
+                          Row() {
+                            Text('<')
+                              .fontSize(14)
+                              .fontColor(this.currentPage > 1 ? this.themeColor : this.textColorSecondary)
+                          }
+                          .padding(8)
+                          .backgroundColor(this.themeColorLight)
+                          .borderRadius(4)
+                          .enabled(this.currentPage > 1)
+                          .onClick(() => {
+                            if (this.currentPage > 1) {
+                              this.currentPage--;
+                              this.fetchAccessRecords();
+                            }
+                          })
+
+                          // 页码按钮
+                          ForEach(this.calculatePageRange(), (page: number) => {
+                            Row() {
+                              Text(`${page}`)
+                                .fontSize(14)
+                                .fontColor(page === this.currentPage ? Color.White : this.themeColor)
+                            }
+                            .padding(8)
+                            .backgroundColor(page === this.currentPage ? this.themeColor : this.themeColorLight)
+                            .borderRadius(4)
+                            .onClick(() => {
+                              if (page !== this.currentPage) {
+                                this.currentPage = page;
+                                this.fetchAccessRecords();
+                              }
+                            })
+                          })
+
+                          // 下一页按钮
+                          Row() {
+                            Text('>')
+                              .fontSize(14)
+                              .fontColor(this.currentPage < this.totalPages ? this.themeColor : this.textColorSecondary)
+                          }
+                          .padding(8)
+                          .backgroundColor(this.themeColorLight)
+                          .borderRadius(4)
+                          .enabled(this.currentPage < this.totalPages)
+                          .onClick(() => {
+                            if (this.currentPage < this.totalPages) {
+                              this.currentPage++;
+                              this.fetchAccessRecords();
+                            }
+                          })
+
+                          // 页数信息
+                          Text(`${this.currentPage}/${this.totalPages}页`)
+                            .fontSize(14)
+                            .fontColor(this.textColor)
+                            .margin({ left: 8, right: 8 })
+
+                          // 跳转页码输入
+                          Text('跳至')
+                            .fontSize(14)
+                            .fontColor(this.textColor)
+
+                          TextInput({ text: this.inputPage })
+                            .width(40)
+                            .height(32)
+                            .backgroundColor(this.themeColorLight)
+                            .borderRadius(4)
+                            .type(InputType.Number)
+                            .onChange((value: string) => {
+                              this.inputPage = value;
+                            })
+
+                          Text('页')
+                            .fontSize(14)
+                            .fontColor(this.textColor)
+
+                          Button('确定')
+                            .fontSize(14)
+                            .fontColor(Color.White)
+                            .backgroundColor(this.themeColor)
+                            .borderRadius(4)
+                            .height(32)
+                            .onClick(() => {
+                              let pageNum = 0;
+                              try {
+                                pageNum = parseInt(this.inputPage.trim());
+                              } catch (e) {
+                                pageNum = 0;
+                              }
+
+                              if (pageNum >= 1 && pageNum <= this.totalPages) {
+                                this.currentPage = pageNum;
+                                this.fetchAccessRecords();
+                                this.inputPage = '';
+                              } else {
+                                JhProgressHUD.showText('请输入有效页码');
+                              }
+                            })
+                        }
+                      }
+                      .width('100%')
+                      .justifyContent(FlexAlign.Center)
+                      .padding({
+                        left: 16,
+                        right: 16,
+                        top: 8,
+                        bottom: 40
+                      })
+                      .backgroundColor(Color.White)
+                      .zIndex(2)
                     }
                     .width('100%')
-                  }
-                  .scrollBar(BarState.Auto)
-                  .scrollBarColor(Color.Gray)
-                  .scrollBarWidth(4)
-                  .edgeEffect(EdgeEffect.Spring)
-                  .width('100%')
-                  .height('calc(100% - 170px)') // 调整高度，留出表头和分页的空间，考虑分页底部增加的间距
-
-                  // 分页控制
-                  Row() {
-                    // 所有分页元素放在同一个Row中
-                    Row({ space: 8 }) {
-                      // 上一页按钮
-                      Row() {
-                        Text('<')
-                          .fontSize(14)
-                          .fontColor(this.currentPage > 1 ? this.themeColor : this.textColorSecondary)
-                      }
-                      .padding(8)
-                      .backgroundColor(this.themeColorLight)
-                      .borderRadius(4)
-                      .enabled(this.currentPage > 1)
-                      .onClick(() => {
-                        if (this.currentPage > 1) {
-                          this.currentPage--;
-                          this.fetchAccessRecords();
-                        }
-                      })
-
-                      // 页码按钮
-                      ForEach(this.calculatePageRange(), (page: number) => {
-                        Row() {
-                          Text(`${page}`)
-                            .fontSize(14)
-                            .fontColor(page === this.currentPage ? Color.White : this.themeColor)
-                        }
-                        .padding(8)
-                        .backgroundColor(page === this.currentPage ? this.themeColor : this.themeColorLight)
-                        .borderRadius(4)
-                        .onClick(() => {
-                          if (page !== this.currentPage) {
-                            this.currentPage = page;
-                            this.fetchAccessRecords();
-                          }
-                        })
-                      })
-
-                      // 下一页按钮
-                      Row() {
-                        Text('>')
-                          .fontSize(14)
-                          .fontColor(this.currentPage < this.totalPages ? this.themeColor : this.textColorSecondary)
-                      }
-                      .padding(8)
-                      .backgroundColor(this.themeColorLight)
-                      .borderRadius(4)
-                      .enabled(this.currentPage < this.totalPages)
-                      .onClick(() => {
-                        if (this.currentPage < this.totalPages) {
-                          this.currentPage++;
-                          this.fetchAccessRecords();
-                        }
-                      })
-
-                      // 页数信息
-                      Text(`${this.currentPage}/${this.totalPages}页`)
-                        .fontSize(14)
-                        .fontColor(this.textColor)
-                        .margin({ left: 8, right: 8 })
-
-                      // 跳转页码输入
-                      Text('跳至')
-                        .fontSize(14)
-                        .fontColor(this.textColor)
-
-                      TextInput({ text: this.inputPage })
-                        .width(40)
-                        .height(32)
-                        .backgroundColor(this.themeColorLight)
-                        .borderRadius(4)
-                        .type(InputType.Number)
-                        .onChange((value: string) => {
-                          this.inputPage = value;
-                        })
-
-                      Text('页')
-                        .fontSize(14)
-                        .fontColor(this.textColor)
-
-                      Button('确定')
-                        .fontSize(14)
-                        .fontColor(Color.White)
-                        .backgroundColor(this.themeColor)
-                        .borderRadius(4)
-                        .height(32)
-                        .onClick(() => {
-                          let pageNum = 0;
-                          try {
-                            pageNum = parseInt(this.inputPage.trim());
-                          } catch (e) {
-                            pageNum = 0;
-                          }
-
-                          if (pageNum >= 1 && pageNum <= this.totalPages) {
-                            this.currentPage = pageNum;
-                            this.fetchAccessRecords();
-                            this.inputPage = '';
-                          } else {
-                            JhProgressHUD.showText('请输入有效页码');
-                          }
-                        })
-                    }
+                    .height('100%')
+                    .alignItems(HorizontalAlign.Start)
+                    .justifyContent(FlexAlign.Start)
                   }
                   .width('100%')
-                  .justifyContent(FlexAlign.Center)
-                  .padding({
-                    left: 16,
-                    right: 16,
-                    top: 16,
-                    bottom: 20
-                  })
+                  .height('100%')
                   .backgroundColor(Color.White)
-                  .borderRadius({ bottomLeft: 8, bottomRight: 8 })
-                  .shadow({ radius: 2, color: this.themeBorderColor, offsetY: 1 })
-                  .zIndex(2) // 确保分页工具始终可见
                 }
                 .width('100%')
                 .height('100%')
                 .backgroundColor(Color.White)
-                .borderRadius(8)
               }
               .margin({ left: 25, right: 25, bottom: 40 })
             }

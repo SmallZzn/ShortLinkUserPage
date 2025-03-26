@@ -5,7 +5,7 @@
 
 export class APIs {
   // url 前缀
-  static readonly apiPrefix: string = '172.25.240.1:8003'
+  static readonly apiPrefix: string = '172.19.112.1:8003'
 
 
   //=====================用户模块=============================

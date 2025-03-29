@@ -145,16 +145,6 @@ export struct EditShortLink {
         JhProgressHUD.showError('请选择有效期');
         return false;
       }
-
-      // 校验选择的日期是否大于当前日期
-      const selectedDate = new Date(this.customDate);
-      const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0); // 设置时分秒为0，只比较日期
-
-      if (selectedDate <= currentDate) {
-        JhProgressHUD.showError('有效期必须大于当前日期');
-        return false;
-      }
     }
 
     return true;

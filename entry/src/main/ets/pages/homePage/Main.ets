@@ -2125,7 +2125,7 @@ struct Main {
   // 添加检查短链接是否过期的方法
   private isLinkExpired(item: ShortLink): boolean {
     // 永久有效的链接永远不会过期
-    if (item.validityType === 'PERMANENT') {
+    if (item.validDateType === 0) {
       return false;
     }
     
@@ -2134,7 +2134,7 @@ struct Main {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 设置为今天的0点0分0秒
     
     // 获取有效期日期字符串
-    const validDateStr = item.validityTime || item.validDate;
+    const validDateStr = item.validDate;
     if (!validDateStr) {
       return false; // 没有有效期信息，当作未过期
     }

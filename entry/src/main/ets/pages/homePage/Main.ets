@@ -107,6 +107,13 @@ struct Main {
   // 添加用户信息弹窗状态
   @State isUserInfoDrawerOpening: boolean = false;
   @State userInfoDrawerWidth: number = 0;
+  // 在class Main的State部分添加一个新的状态变量来跟踪当前显示的分组菜单
+  @State showGroupMenuForGid: string = ''; // 用于跟踪当前显示分组菜单的gid
+  // 在State部分添加新的状态变量
+  @State showEditGroupMask: boolean = false; // 控制编辑分组遮罩层
+  @State showEditGroupDialog: boolean = false; // 控制编辑分组对话框
+  @State editingGroup: Group | null = null; // 当前正在编辑的分组
+  @State editGroupName: string = ''; // 编辑后的分组名称
 
   aboutToAppear() {
     // 获取路由参数中的用户名
@@ -235,7 +242,7 @@ struct Main {
           Column() {
             // 顶部导航栏
             Row() {
-              Text('短链接系统')
+              Text('短链接服务平台')
                 .fontSize(25)
                 .fontWeight(FontWeight.Bold)
                 .fontColor(this.textColor)
@@ -244,10 +251,6 @@ struct Main {
 
               // 用户信息区域
               Row({ space: 8 }) {
-                // Image($r('app.media.Jordan'))
-                //   .width(32)
-                //   .height(32)
-                //   .borderRadius(16)
                 Text(this.username)
                   .fontSize(14)
                   .fontWeight(FontWeight.Medium)
@@ -283,7 +286,7 @@ struct Main {
                     .fontSize(18)
                     .fontWeight(FontWeight.Bold)
                     .fontColor(this.textColor)
-                    // .margin({ left: 10 })
+                  // .margin({ left: 10 })
 
                   Button() {
                     Row() {
@@ -360,15 +363,32 @@ struct Main {
                                   return false; // 阻止事件冒泡
                                 })
 
-                              // 删除图标
-                              Image($r('app.media.delete'))
+                              // 删除图标替换为编辑图标
+                              Image($r('app.media.setting'))
                                 .width(16)
                                 .height(16)
                                 .fillColor(this.currentGroup === group.name ? this.themeColor : this.textColorSecondary)
                                 .opacity(0.8)
+                                .bindPopup(this.showGroupMenuForGid === group.gid, {
+                                  builder: () => this.GroupMenuBuilder(group),
+                                  placement: Placement.Bottom,
+                                  maskColor: 'rgba(0, 0, 0, 0)',
+                                  popupColor: 'rgba(0, 0, 0, 0)',
+                                  enableArrow: false,
+                                  onStateChange: (e) => {
+                                    if (!e.isVisible) {
+                                      this.showGroupMenuForGid = '';
+                                    }
+                                  }
+                                })
                                 .onClick(() => {
-                                  // 添加删除分组确认对话框
-                                  this.showDeleteGroupDialog(group);
+                                  // 防止点击编辑图标时对默认分组弹出菜单
+                                  if (group.name === '默认分组') {
+                                    promptAction.showToast({ message: '默认分组不能编辑' });
+                                  } else {
+                                    // 设置当前显示菜单的分组ID
+                                    this.showGroupMenuForGid = this.showGroupMenuForGid === group.gid ? '' : group.gid;
+                                  }
                                   return false; // 阻止事件冒泡
                                 })
                             }
@@ -559,7 +579,7 @@ struct Main {
                 Row({ space: 16 }) {
                   // 搜索框部分
                   Row({ space: 8 }) {
-                    Search({ value: this.searchText, placeholder: '请输入短链接/原始链接' })
+                    Search({ value: this.searchText, placeholder: '请输入描述信息、短链接或原始链接' })
                       .width('100%')
                       .height(36)
                       .backgroundColor(Color.White)
@@ -674,7 +694,7 @@ struct Main {
                       ListItem() {
                         Row() {
                           // 检查链接是否过期
-                          
+
                           // 短链接信息
                           Column() {
                             if (item.describe) {
@@ -690,7 +710,7 @@ struct Main {
                                 .fontSize(11)
                                 .fontColor(this.textColorSecondary)
                                 .opacity(this.isLinkExpired(item) ? 0.6 : 1)
-                              
+
                               // 添加过期标签
                               if (this.isLinkExpired(item)) {
                                 Text('已失效')
@@ -698,7 +718,12 @@ struct Main {
                                   .backgroundColor('#ff4d4f')
                                   .fontColor(Color.White)
                                   .borderRadius(2)
-                                  .padding({ left: 4, right: 4, top: 1, bottom: 1 })
+                                  .padding({
+                                    left: 4,
+                                    right: 4,
+                                    top: 1,
+                                    bottom: 1
+                                  })
                                   .margin({ left: 6 })
                               }
                             }
@@ -709,7 +734,7 @@ struct Main {
                           // 短链接
                           Column() {
                             Row() {
-                              Text(item.domain + item.shortUri)
+                              Text(item.domain + "/" + item.shortUri)
                                 .fontSize(13)
                                 .fontColor(this.isLinkExpired(item) ? this.textColorSecondary : '#007AFF')
                                 .margin({ bottom: 4 })
@@ -728,7 +753,7 @@ struct Main {
                               .opacity(this.isLinkExpired(item) ? 0.5 : 1)
                               .onClick(() => {
                                 if (!this.isLinkExpired(item)) {
-                                  this.copyToClipboard(item.domain + item.shortUri || '');
+                                  this.copyToClipboard(item.domain + "/" + item.shortUri || '');
                                 }
                               })
                             }
@@ -1038,7 +1063,7 @@ struct Main {
                 this.statsDrawerWidth = 0;
               })
           }
-          
+
           // 添加用户信息弹窗的遮罩层
           if (this.isUserInfoDrawerOpening) {
             // 添加遮罩层
@@ -1050,7 +1075,7 @@ struct Main {
               .onClick(() => {
                 this.isUserInfoDrawerOpening = false;
               })
-            
+
             UserInfoPopup({
               isDrawerOpening: $isUserInfoDrawerOpening,
               drawerWidth: $userInfoDrawerWidth
@@ -1150,6 +1175,9 @@ struct Main {
         if (this.showUserMenu) {
           this.showUserMenu = false;
         }
+        if (this.showGroupMenuForGid !== '') {
+          this.showGroupMenuForGid = '';
+        }
       })
 
       // 退出登录的遮罩层
@@ -1242,6 +1270,80 @@ struct Main {
                   } catch (error) {
                     console.error('创建分组失败:', error);
                     JhProgressHUD.showError('创建失败');
+                  }
+                })
+            }
+            .margin({ bottom: 20 })
+          }
+          .width(320)
+          .backgroundColor(Color.White)
+          .borderRadius(8)
+        }
+        .width('100%')
+        .height('100%')
+        .justifyContent(FlexAlign.Center)
+        .backgroundColor('transparent')
+      }
+
+      // 编辑分组的遮罩层
+      if (this.showEditGroupMask) {
+        Column()
+          .width('100%')
+          .height('113%')
+          .backgroundColor('rgba(0, 0, 0, 0.4)')
+          .position({ x: 0, y: -40 })
+          .onClick(() => {
+            // 点击遮罩层不做任何操作，保持弹窗显示
+          })
+      }
+
+      // 编辑分组对话框
+      if (this.showEditGroupDialog && this.editingGroup) {
+        Column() {
+          // 对话框内容
+          Column() {
+            Text('编辑分组')
+              .fontSize(16)
+              .fontWeight(FontWeight.Bold)
+              .margin({ top: 20, bottom: 16 })
+
+            TextInput({ text: this.editGroupName, placeholder: '请输入分组名称' })
+              .width('90%')
+              .height(40)
+              .margin({ bottom: 20 })
+              .onChange((value: string) => {
+                this.editGroupName = value;
+              })
+
+            Row() {
+              Button('取消')
+                .width(100)
+                .height(36)
+                .backgroundColor(Color.White)
+                .fontColor(this.textColor)
+                .borderRadius(4)
+                .border({ width: 1, color: this.themeBorderColor })
+                .margin({ right: 12 })
+                .onClick(() => {
+                  this.showEditGroupDialog = false;
+                  this.showEditGroupMask = false;
+                  this.editingGroup = null;
+                })
+
+              Button('确定')
+                .width(100)
+                .height(36)
+                .backgroundColor(this.themeColor)
+                .fontColor(Color.White)
+                .borderRadius(4)
+                .onClick(async () => {
+                  if (!this.editGroupName || this.editGroupName.trim() === '') {
+                    JhProgressHUD.showError('请输入分组名称');
+                    return;
+                  }
+
+                  if (this.editingGroup) {
+                    await this.updateGroupName(this.editingGroup, this.editGroupName.trim());
                   }
                 })
             }
@@ -1448,7 +1550,6 @@ struct Main {
   // 退出登录
   private async logout() {
     try {
-      JhProgressHUD.showLoadingText('正在退出登录...');
 
       // 获取用户名和token
       const username = this.username;
@@ -1842,8 +1943,6 @@ struct Main {
           action: async () => {
             console.info('确认恢复');
 
-            // 显示加载提示
-            JhProgressHUD.showLoadingText('正在恢复...');
 
             const params: object = Object({
               gid: item.gid,
@@ -1886,8 +1985,6 @@ struct Main {
           action: async () => {
             console.info('确认永久删除');
 
-            // 显示加载提示
-            JhProgressHUD.showLoadingText('正在删除...');
 
             const params: object = Object({
               gid: item.gid,
@@ -2040,7 +2137,7 @@ struct Main {
 
     AlertDialog.show({
       title: '删除分组',
-      message: `确定要删除"${group.name}"分组吗？\n删除后，该分组下的短链接将移至默认分组。`,
+      message: `确定要删除"${group.name}"分组吗？\n`,
       primaryButton: {
         value: '取消',
         action: () => {
@@ -2074,7 +2171,6 @@ struct Main {
         'username': encodeURIComponent(this.username)
       };
 
-      JhProgressHUD.showLoadingText('正在删除...');
       const res = await HttpUtils.delete(APIs.deleteGroup, params, '', headers);
 
       if (res.code === '0') {
@@ -2091,7 +2187,7 @@ struct Main {
 
   /**
    * 显示分组统计信息
-   * 
+   *
    * @param group 分组对象
    */
   showGroupStats(group: Group) {
@@ -2128,24 +2224,100 @@ struct Main {
     if (item.validDateType === 0) {
       return false;
     }
-    
+
     // 获取当前日期
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 设置为今天的0点0分0秒
-    
+
     // 获取有效期日期字符串
     const validDateStr = item.validDate;
     if (!validDateStr) {
       return false; // 没有有效期信息，当作未过期
     }
-    
+
     // 解析有效期日期
     const validDate = new Date(validDateStr);
     // 将validDate也设置为其当天的0点0分0秒，用于比较日期
     const validDay = new Date(validDate.getFullYear(), validDate.getMonth(), validDate.getDate());
-    
+
     // 比较当前日期与有效期，如果validDay等于today，不算过期
     // 只有当today大于validDay时才算过期
     return today > validDay;
+  }
+
+  // 添加分组菜单构建器
+  @Builder
+  GroupMenuBuilder(group: Group) {
+    Column() {
+      Button('编辑分组', { type: ButtonType.Normal })
+        .width('100%')
+        .height(40)
+        .fontSize(14)
+        .fontColor(this.textColor)
+        .backgroundColor(Color.White)
+        .onClick(() => {
+          // 设置当前编辑的分组并显示编辑弹窗
+          this.editingGroup = group;
+          this.editGroupName = group.name;
+          this.showEditGroupMask = true;
+          this.showEditGroupDialog = true;
+          this.showGroupMenuForGid = ''; // 关闭菜单弹窗
+        })
+
+      Divider().color(this.themeBorderColor).opacity(0.6)
+
+      Button('删除分组', { type: ButtonType.Normal })
+        .width('100%')
+        .height(40)
+        .fontSize(14)
+        .fontColor('#FF4D4F')
+        .backgroundColor(Color.White)
+        .onClick(() => {
+          this.showGroupMenuForGid = ''; // 关闭弹窗
+          this.showDeleteGroupDialog(group);
+        })
+    }
+    .width(120)
+    .padding(4)
+    .backgroundColor(Color.White)
+    .border({
+      width: 1,
+      color: this.themeBorderColor,
+      style: BorderStyle.Solid
+    })
+    .borderRadius(8)
+  }
+
+  // 添加更新分组名称的方法
+  // 更新分组名称
+  private async updateGroupName(group: Group, newName: string) {
+    try {
+      // 构造请求参数
+      const params: object = Object({
+        gid: group.gid,
+        name: newName
+      });
+
+      const headers: Record<string, string> = {
+        'username': encodeURIComponent(this.username)
+      };
+
+      const res = await HttpUtils.put(APIs.updateGroup, params, '', headers);
+
+      if (res.code === '0') {
+        JhProgressHUD.showSuccess('更新成功');
+        // 关闭弹窗
+        this.showEditGroupDialog = false;
+        this.showEditGroupMask = false;
+        this.editingGroup = null;
+        // 重新获取分组列表
+        await this.fetchGroupList();
+      } else {
+        JhProgressHUD.showError(res.message || '更新失败');
+      }
+    } catch (error) {
+      console.error('更新分组名称失败:', error);
+      JhProgressHUD.showError('更新失败');
+    }
   }
 }

@@ -41,7 +41,7 @@ struct AuthPage {
       // 主要内容
       Column() {
         // 顶部标题
-        Text('短链接系统')
+        Text('短链接服务平台')
           .fontSize(40)
           .fontWeight(FontWeight.Bold)
           .fontColor('#FFFFFF')

@@ -21,12 +21,12 @@ export class APIs {
   /// 微信朋友圈
   static readonly getFriendsCircleList: string = '/mock/wx/moments'
   /// 用户相关接口
-  static readonly getUserByUsername: string = '/api/short-link/admin/v1/user/' // 需要在后面加上username
-  static readonly getActualUserByUsername: string = '/api/short-link/admin/v1/actual/user/' // 需要在后面加上username
-  static readonly hasUsername: string = '/api/short-link/admin/v1/user/has-username'
-  static readonly register: string = '/api/short-link/admin/v1/user'
-  static readonly updateUser: string = '/api/short-link/admin/v1/user'
-  static readonly userLogin: string = '/api/short-link/admin/v1/user/login'
-  static readonly checkLogin: string = '/api/short-link/admin/v1/user/check-login'
-  static readonly logout: string = '/api/short-link/admin/v1/user/logout'
+  static readonly getUserByUsername: string = '/api/short-url/admin/v1/user/' // 需要在后面加上username
+  static readonly getActualUserByUsername: string = '/api/short-url/admin/v1/actual/user/' // 需要在后面加上username
+  static readonly hasUsername: string = '/api/short-url/admin/v1/user/has-username'
+  static readonly register: string = '/api/short-url/admin/v1/user'
+  static readonly updateUser: string = '/api/short-url/admin/v1/user'
+  static readonly userLogin: string = '/api/short-url/admin/v1/user/login'
+  static readonly checkLogin: string = '/api/short-url/admin/v1/user/check-login'
+  static readonly logout: string = '/api/short-url/admin/v1/user/logout'
 }

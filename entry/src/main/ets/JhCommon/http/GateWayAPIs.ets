@@ -1,12 +1,12 @@
 
 export class GateWayAPIs {
   // url 前缀
-  static readonly apiPrefix: string = '172.30.176.1:8003'
+  static readonly apiPrefix: string = '172.20.16.1:8003'
 
 
   //=====================用户模块=============================
   // 登录接口
-  static readonly login: string = '/short-link/admin/v1/user/login'
+  static readonly login: string = '/short-url/admin/v1/user/login'
 
 
 

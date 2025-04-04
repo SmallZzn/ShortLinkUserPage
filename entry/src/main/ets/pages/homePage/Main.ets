@@ -1877,11 +1877,8 @@ struct Main {
       this.isRecycleBin = true;
       this.currentGroup = '回收站';
 
-      // 重置页码
-      this.currentPage = 1;
-
-      // 显示加载中提示
-      JhProgressHUD.showLoadingText('加载中...');
+      // 删除下面这行代码，不再强制重置页码
+      // this.currentPage = 1;
 
       // 获取所有分组ID
       const gidList = this.groups.map(group => group.gid);

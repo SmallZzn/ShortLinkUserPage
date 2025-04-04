@@ -5,72 +5,72 @@
 
 export class APIs {
   // url 前缀
-  static readonly apiPrefix: string = '172.30.176.1:8003'
+  static readonly apiPrefix: string = '172.20.16.1:8003'
 
 
   //=====================用户模块=============================
   //注册接口
-  static readonly register: string = '/short-link/admin/v1/user'
+  static readonly register: string = '/short-url/admin/v1/user'
 
   //退出登录
-  static readonly logout: string = '/short-link/admin/v1/user/logout'
+  static readonly logout: string = '/short-url/admin/v1/user/logout'
 
   // 分页查询用户列表
-  static readonly pageUserList: string = '/short-link/admin/v1/user/page'
+  static readonly pageUserList: string = '/short-url/admin/v1/user/page'
 
   // 添加用户
-  static readonly addUser: string = '/short-link/admin/v1/user/add'
+  static readonly addUser: string = '/short-url/admin/v1/user/add'
 
   // 编辑用户
-  static readonly editUser: string = '/short-link/admin/v1/user/edit'
+  static readonly editUser: string = '/short-url/admin/v1/user/edit'
 
   // 删除用户
-  static readonly deleteUser: string = '/short-link/admin/v1/user/delete'
+  static readonly deleteUser: string = '/short-url/admin/v1/user/delete'
 
-  static readonly getUserByUsername: string = '/short-link/admin/v1/user/' // 需要在后面加上username
-  static readonly getActualUserByUsername: string = '/short-link/admin/v1/actual/user/' // 需要在后面加上username
-  static readonly hasUsername: string = '/short-link/admin/v1/user/has-username'
-  static readonly updateUser: string = '/short-link/admin/v1/user'
-  static readonly userLogin: string = '/short-link/admin/v1/user/login'
-  static readonly checkLogin: string = '/short-link/admin/v1/user/check-login'
+  static readonly getUserByUsername: string = '/short-url/admin/v1/user/' // 需要在后面加上username
+  static readonly getActualUserByUsername: string = '/short-url/admin/v1/actual/user/' // 需要在后面加上username
+  static readonly hasUsername: string = '/short-url/admin/v1/user/has-username'
+  static readonly updateUser: string = '/short-url/admin/v1/user'
+  static readonly userLogin: string = '/short-url/admin/v1/user/login'
+  static readonly checkLogin: string = '/short-url/admin/v1/user/check-login'
 
   //校验旧密码是否正确
-  static readonly checkPassword: string = '/short-link/admin/v1/checkPassword'
+  static readonly checkPassword: string = '/short-url/admin/v1/checkPassword'
 
 
   //=====================分组模块=============================
   // 新增短链接分组
-  static readonly saveGroup: string = '/short-link/admin/v1/group'
+  static readonly saveGroup: string = '/short-url/admin/v1/group'
 
   // 查询短链接分组集合
-  static readonly listGroup: string = '/short-link/admin/v1/group'
+  static readonly listGroup: string = '/short-url/admin/v1/group'
 
   // 修改短链接分组名称
-  static readonly updateGroup: string = '/short-link/admin/v1/group'
+  static readonly updateGroup: string = '/short-url/admin/v1/group'
 
   // 删除短链接分组
-  static readonly deleteGroup: string = '/short-link/admin/v1/group'
+  static readonly deleteGroup: string = '/short-url/admin/v1/group'
 
   // 排序短链接分组
-  static readonly sortGroup: string = '/short-link/admin/v1/group/sort'
+  static readonly sortGroup: string = '/short-url/admin/v1/group/sort'
 
   // 分页查询短链接
-  static readonly pageShortLink: string = '/short-link/v1/page';
+  static readonly pageShortLink: string = '/short-url/v1/page';
 
 
 
   //=====================短链接模块=============================
   // 创建短链接
-  static readonly createShortLink: string = '/short-link/v1/create'
+  static readonly createShortLink: string = '/short-url/v1/create'
 
   // 批量创建短链接
-  static readonly batchCreateShortLink: string = '/short-link/v1/create/batch'
+  static readonly batchCreateShortLink: string = '/short-url/v1/create/batch'
 
   // 修改短链接
-  static readonly updateShortLink: string = '/short-link/v1/update'
+  static readonly updateShortLink: string = '/short-url/v1/update'
 
   // 查询短链接分组内数量
-  static readonly listGroupShortLinkCount: string = '/short-link/v1/count'
+  static readonly listGroupShortLinkCount: string = '/short-url/v1/count'
 
   // 短链接跳转原始链接
   static readonly restoreUrl: string = '/{short-uri}'  // 需要替换 {short-uri} 为实际的短链接
@@ -78,30 +78,30 @@ export class APIs {
 
   //=====================回收站模块=============================
   // 保存到回收站
-  static readonly saveRecycleBin: string = '/short-link/v1/recycle-bin/save'
+  static readonly saveRecycleBin: string = '/short-url/v1/recycle-bin/save'
 
   // 分页查询回收站短链接
-  static readonly pageRecycleBin: string = '/short-link/v1/recycle-bin/page'
+  static readonly pageRecycleBin: string = '/short-url/v1/recycle-bin/page'
 
   // 恢复短链接
-  static readonly recoverRecycleBin: string = '/short-link/v1/recycle-bin/recover'
+  static readonly recoverRecycleBin: string = '/short-url/v1/recycle-bin/recover'
 
   // 移除短链接
-  static readonly removeRecycleBin: string = '/short-link/v1/recycle-bin/remove'
+  static readonly removeRecycleBin: string = '/short-url/v1/recycle-bin/remove'
 
 
   //=====================统计模块=============================
   // 访问单个短链接指定时间内监控数据
-  static readonly shortLinkStats: string = '/short-link/admin/v1/stats';
+  static readonly shortLinkStats: string = '/short-url/admin/v1/stats';
 
   // 访问分组短链接指定时间内监控数据
-  static readonly groupShortLinkStats: string = '/short-link/v1/stats/group';
+  static readonly groupShortLinkStats: string = '/short-url/v1/stats/group';
 
   // 访问单个短链接指定时间内访问记录监控数据
-  static readonly shortLinkStatsAccessRecord: string = '/short-link/v1/stats/access-record';
+  static readonly shortLinkStatsAccessRecord: string = '/short-url/v1/stats/access-record';
 
   // 访问分组短链接指定时间内访问记录监控数据
-  static readonly groupShortLinkStatsAccessRecord: string = '/short-link/v1/stats/access-record/group';
+  static readonly groupShortLinkStatsAccessRecord: string = '/short-url/v1/stats/access-record/group';
 
 
   //=====================其它=============================
